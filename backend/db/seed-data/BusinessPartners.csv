@@ -1,0 +1,6 @@
+id,name,type,country,creditLimit,paymentTerms,active,riskCategory
+BP-NVC001,NovaCare Clinics,Customer,United Kingdom,250000.00,NET30,true,Low
+BP-MDS002,MedSupply Deutschland,Supplier,Germany,180000.00,NET45,true,Medium
+BP-PHX003,Phoenix Industrial,Customer,United Kingdom,500000.00,NET60,true,Low
+BP-TEC004,TechDrive GmbH,Supplier,Germany,120000.00,NET30,true,High
+BP-GLO005,Global Motors Ltd,Customer,France,350000.00,NET45,true,Medium

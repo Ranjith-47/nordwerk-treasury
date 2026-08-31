@@ -1,0 +1,6 @@
+id,name,email,role,companyCode_code,active
+USR001,Anna Schmidt,anna.schmidt@nordwerk.de,TreasuryAnalyst,1100,true
+USR002,Thomas Weber,thomas.weber@nordwerk.de,TreasuryManager,1100,true
+USR003,Maria Fischer,maria.fischer@nordwerk.de,CFO,1100,true
+USR004,Lars Becker,lars.becker@nordwerk.de,TreasuryAnalyst,1100,true
+USR005,Admin User,admin@nordwerk.de,Admin,1100,true
