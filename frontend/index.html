@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="SAP Fiori Dashboard" />
+    <title>SAP UI Dashboard</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Import standard CSS -->
+    <link rel="stylesheet" href="/src/styles/fiori.css" />
+  </head>
+  <body>
+    <!-- SAP Fiori Shell -->
+    <header class="fiori-shell-bar">
+      <div class="shell-left">
+        <button class="shell-icon-btn" id="nav-menu-btn" title="Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"></path></svg>
+        </button>
+        <div class="shell-logo">
+          <!-- SAP Logo placeholder -->
+          <svg viewBox="0 0 100 50" fill="var(--sapBrandColor)"><path d="M10,40 L10,10 L30,10 L30,40 Z"></path></svg>
+        </div>
+        <h1 class="shell-title" id="shell-title">Executive Dashboard</h1>
+      </div>
+      
+      <div class="shell-center">
+        <!-- Global Search -->
+        <div class="shell-search">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" placeholder="Search..." />
+        </div>
+      </div>
+      
+      <div class="shell-right">
+        <button class="shell-icon-btn" title="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <span class="badge">3</span>
+        </button>
+        <button class="shell-icon-btn user-avatar" title="User Profile">
+          <span>RR</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- App Container -->
+    <div class="app-container">
+      <!-- Side Navigation -->
+      <nav class="side-nav" id="side-nav">
+        <ul class="nav-list">
+          <li class="nav-item active" data-route="dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span class="nav-label">Dashboard</span>
+          </li>
+          <li class="nav-item" data-route="exceptions">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span class="nav-label">Exceptions</span>
+          </li>
+          <li class="nav-item" data-route="analytics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+            <span class="nav-label">Analytics</span>
+          </li>
+        </ul>
+      </nav>
+      
+      <!-- Main Content Area -->
+      <main class="main-content" id="app">
+        <!-- Content will be injected here by main.js -->
+      </main>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
