@@ -6,6 +6,8 @@ const helmet     = require('helmet');
 const rateLimit  = require('express-rate-limit');
 const path       = require('path');
 const { v4: uuidv4 } = require('uuid');
+const PDFDocument = require('pdfkit');
+const nodemailer  = require('nodemailer');
 
 const { validate, validatePatch }     = require('./handlers/validation');
 const { calculateRisk, scoreAndRank, portfolioKPIs } = require('./handlers/risk-engine');
@@ -467,6 +469,201 @@ app.post('/api/treasury/import', (req, res) => {
 
   addAudit('IMPORT', 'BULK_IMPORT', 'SYSTEM', { imported, failed: errors.length }, req);
   res.json({ imported, failed: errors.length, errors });
+});
+
+// ─── EXPORT: PDF ─────────────────────────────────────────────────────────────
+
+// GET /api/treasury/export/pdf?status=&riskLevel=
+app.get('/api/treasury/export/pdf', (req, res) => {
+  const { items } = applyFilters(store.exceptions, req.query);
+  const kpis = portfolioKPIs(scoreAndRank(store.exceptions));
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="treasury-exceptions-${new Date().toISOString().slice(0,10)}.pdf"`);
+
+  const doc = new PDFDocument({ margin: 40, size: 'A4', layout: 'landscape' });
+  doc.pipe(res);
+
+  // ── Header bar ──
+  doc.rect(0, 0, doc.page.width, 55).fill('#1C2B36');
+  doc.fillColor('#FFFFFF').fontSize(18).font('Helvetica-Bold')
+     .text('Nordwerk Treasury — Exception Report', 40, 16);
+  doc.fontSize(9).font('Helvetica')
+     .text(`Generated: ${new Date().toLocaleString('en-GB')}`, 40, 38);
+
+  doc.moveDown(3);
+
+  // ── KPI Summary Band ──
+  const kpiY = 70;
+  doc.fillColor('#F5F6F8').rect(30, kpiY, doc.page.width - 60, 48).fill();
+  const kpiItems = [
+    { label: 'Total Exceptions', value: kpis.exceptionCount },
+    { label: 'Open', value: kpis.openCount },
+    { label: 'Resolved', value: kpis.resolvedCount },
+    { label: 'SLA Adherence', value: `${kpis.slaAdherence}%` },
+    { label: 'Total Exposure', value: `£${(kpis.totalExposure||0).toLocaleString('en-GB')}` },
+  ];
+  const kpiW = (doc.page.width - 60) / kpiItems.length;
+  kpiItems.forEach((k, i) => {
+    const x = 30 + i * kpiW;
+    doc.fillColor('#5C6A75').fontSize(7).font('Helvetica').text(k.label.toUpperCase(), x + 8, kpiY + 8, { width: kpiW - 8 });
+    doc.fillColor('#1C2B36').fontSize(14).font('Helvetica-Bold').text(String(k.value), x + 8, kpiY + 20, { width: kpiW - 8 });
+  });
+
+  // ── Table ──
+  const tableTop = 130;
+  const cols = [
+    { header: 'ID',          key: 'documentId',          w: 80  },
+    { header: 'Type',        key: 'documentType',         w: 70  },
+    { header: 'Category',    key: 'category',             w: 95  },
+    { header: 'Partner',     key: 'businessPartner_id',   w: 90  },
+    { header: 'Amount',      key: 'amount',               w: 80, fmt: v => v ? `£${parseFloat(v).toLocaleString('en-GB')}` : '-' },
+    { header: 'Risk',        key: 'riskLevel',            w: 55  },
+    { header: 'Score',       key: 'riskScore',            w: 45  },
+    { header: 'Aging (d)',   key: 'agingDays',            w: 55  },
+    { header: 'SLA Breach',  key: 'slaBreach',            w: 60, fmt: v => v ? 'YES' : 'No' },
+    { header: 'Status',      key: 'status',               w: 65  },
+  ];
+  const rowH = 18;
+  const riskColors = { Critical: '#BB0000', High: '#E9730C', Medium: '#0070F2', Low: '#107E3E' };
+
+  // Header row
+  doc.fillColor('#1C2B36').rect(30, tableTop, doc.page.width - 60, rowH).fill();
+  let cx = 30;
+  cols.forEach(c => {
+    doc.fillColor('#FFFFFF').fontSize(7).font('Helvetica-Bold')
+       .text(c.header, cx + 3, tableTop + 5, { width: c.w - 6, ellipsis: true });
+    cx += c.w;
+  });
+
+  // Data rows
+  items.slice(0, 35).forEach((exc, ri) => {
+    const y = tableTop + rowH + ri * rowH;
+    if (ri % 2 === 1) doc.fillColor('#F5F6F8').rect(30, y, doc.page.width - 60, rowH).fill();
+    let dx = 30;
+    cols.forEach(c => {
+      let val = exc[c.key];
+      if (c.fmt) val = c.fmt(val);
+      const color = c.key === 'riskLevel' ? (riskColors[val] || '#1C2B36') : '#1C2B36';
+      doc.fillColor(color).fontSize(7).font(c.key === 'riskLevel' ? 'Helvetica-Bold' : 'Helvetica')
+         .text(String(val ?? '-'), dx + 3, y + 5, { width: c.w - 6, ellipsis: true });
+      dx += c.w;
+    });
+  });
+
+  // Footer
+  doc.fillColor('#5C6A75').fontSize(7).font('Helvetica')
+     .text(`Showing ${Math.min(items.length, 35)} of ${items.length} exceptions  ·  Nordwerk Treasury Platform  ·  Confidential`,
+       40, doc.page.height - 25);
+
+  doc.end();
+});
+
+// ─── EXPORT: EMAIL ────────────────────────────────────────────────────────────
+
+// Lazy-create a nodemailer transporter (Ethereal for dev, SMTP for prod)
+let _mailerTransport = null;
+async function getTransporter() {
+  if (_mailerTransport) return _mailerTransport;
+  if (process.env.SMTP_HOST) {
+    _mailerTransport = nodemailer.createTransport({
+      host: process.env.SMTP_HOST, port: parseInt(process.env.SMTP_PORT) || 587,
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    });
+  } else {
+    // Create an Ethereal test account automatically
+    const testAccount = await nodemailer.createTestAccount();
+    _mailerTransport = nodemailer.createTransport({
+      host: 'smtp.ethereal.email', port: 587, secure: false,
+      auth: { user: testAccount.user, pass: testAccount.pass },
+    });
+    console.log('[Mail] Ethereal test account:', testAccount.user);
+  }
+  return _mailerTransport;
+}
+
+// POST /api/treasury/mail
+app.post('/api/treasury/mail', async (req, res) => {
+  try {
+    const { to, subject, body, exceptionId } = req.body;
+    if (!to) return res.status(400).json({ error: { category: 'ValidationError', message: '`to` email is required.' } });
+
+    // Build summary table if an exceptionId is given
+    let htmlBody = body ? `<pre style="font-family:monospace">${body}</pre>` : '';
+    if (exceptionId) {
+      const exc = findException(exceptionId);
+      if (exc) {
+        htmlBody += `
+          <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px;">
+            <tr style="background:#1C2B36;color:#FFF"><th colspan="2">Exception Detail — ${exc.documentId}</th></tr>
+            <tr><td><b>Type</b></td><td>${exc.documentType}</td></tr>
+            <tr><td><b>Category</b></td><td>${exc.category}</td></tr>
+            <tr><td><b>Amount</b></td><td>£${parseFloat(exc.amount||0).toLocaleString('en-GB')}</td></tr>
+            <tr><td><b>Risk Level</b></td><td>${exc.riskLevel} (score: ${exc.riskScore})</td></tr>
+            <tr><td><b>Status</b></td><td>${exc.status}</td></tr>
+            <tr><td><b>Aging</b></td><td>${exc.agingDays} day(s)</td></tr>
+            <tr><td><b>SLA Breach</b></td><td>${exc.slaBreach ? '⚠️ YES' : 'No'}</td></tr>
+            <tr><td><b>Next Best Action</b></td><td>${exc.nextBestAction || '-'}</td></tr>
+          </table>`;
+      }
+    }
+
+    const transporter = await getTransporter();
+    const info = await transporter.sendMail({
+      from: '"Nordwerk Treasury" <treasury@nordwerk.com>',
+      to,
+      subject: subject || '[Nordwerk Treasury] Exception Report',
+      html: `<div style="font-family:Arial,sans-serif">
+        <h2 style="color:#1C2B36">Nordwerk Treasury Platform</h2>
+        ${htmlBody}
+        <hr/><p style="color:#888;font-size:11px">This is an automated message from the Nordwerk Treasury Exception Management System.</p>
+      </div>`,
+    });
+
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    addAudit(exceptionId || 'MAIL', 'SEND_EMAIL', 'SYSTEM', { to, subject, messageId: info.messageId }, req);
+
+    res.json({ success: true, messageId: info.messageId, previewUrl: previewUrl || null });
+  } catch (err) {
+    console.error('[Mail] Error:', err);
+    res.status(500).json({ error: { category: 'MailError', message: err.message } });
+  }
+});
+
+// ─── RISK ASSESSMENT DETAIL ───────────────────────────────────────────────────
+
+// GET /api/treasury/exceptions/:id/risk  — returns full rule-based breakdown
+app.get('/api/treasury/exceptions/:id/risk', (req, res) => {
+  const exc = findException(req.params.id);
+  if (!exc) return res.status(404).json({ error: { category: 'NotFound', message: 'Exception not found.' } });
+
+  const risk = calculateRisk(exc);
+  const ai   = analyse(exc);
+
+  res.json({
+    exceptionId: exc.ID,
+    documentId:  exc.documentId,
+    riskScore:   risk.riskScore,
+    riskLevel:   risk.riskLevel,
+    agingDays:   risk.agingDays,
+    slaBreach:   risk.slaBreach,
+    hoursOverdue: risk.hoursOverdue,
+    slaDeadline: risk.slaDeadline,
+    overdueValue: risk.overdueValue,
+    priority:    risk.priority,
+    breakdown:   risk.breakdown,
+    rules: [
+      { rule: 'Financial Exposure',   weight: '35%', score: risk.breakdown.amountScore,  maxScore: 100, description: `Amount £${parseFloat(exc.amount||0).toLocaleString('en-GB')} — higher amounts increase risk score` },
+      { rule: 'Aging Factor',         weight: '30%', score: risk.breakdown.agingScore,   maxScore: 100, description: `${risk.agingDays} day(s) since raised — items over 30d score maximum` },
+      { rule: 'Data Completeness',    weight: '20%', score: risk.breakdown.missingScore, maxScore: 100, description: `${exc.missingFields ? exc.missingFields.split(',').filter(Boolean).length : 0} missing mandatory fields` },
+      { rule: 'Recurrence',           weight: '10%', score: risk.breakdown.recurScore,   maxScore: 100, description: `${exc.recurrenceCount || 0} recurrence(s) of this exception pattern` },
+      { rule: 'Document Criticality', weight: '5%',  score: risk.breakdown.docScore,     maxScore: 100, description: `Document type: ${exc.documentType} (multiplier: ${risk.breakdown.docMultiplier}x)` },
+    ],
+    aiExplanation:  ai.explanation,
+    aiConfidence:   ai.confidence,
+    aiActions:      ai.actions,
+    nextBestAction: ai.topAction?.label || null,
+  });
 });
 
 // ─── HEALTH ───────────────────────────────────────────────────────────────────
