@@ -1,6 +1,0 @@
-code,description,unitOfMeasure,materialGroup,active
-MAT-SV20,Sterile Vial 20ml,EA,MED-CONSUMABLES,true
-MAT-PM10,Precision Motor 10kW,EA,IND-MOTORS,true
-MAT-ID05,Industrial Drive 5HP,EA,IND-DRIVES,true
-MAT-BRG1,Bearing Assembly Type-1,EA,COMPONENTS,true
-MAT-CBL2,Motor Control Cable 2m,M,CABLES,true

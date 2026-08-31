@@ -1,5 +1,0 @@
-riskLevel,slaHours,escalateAfter,notifyOwner,notifyManager
-Critical,4,2,true,true
-High,24,12,true,true
-Medium,72,48,true,false
-Low,168,120,true,false
