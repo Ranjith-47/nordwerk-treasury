@@ -1108,20 +1108,9 @@ app.get("/api/health", (_req, res) => {
 
 // ─── STATIC (React build in production) ──────────────────────────────────────
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../../frontend/dist")));
-  app.get("*", (_req, res) =>
-    res.sendFile(path.join(__dirname, "../../frontend/dist/index.html")),
-  );
-}
-
 // ─── ERROR HANDLER ────────────────────────────────────────────────────────────
 
 app.use(errorHandler);
-
-app.listen(PORT, () =>
-  console.log(`[Nordwerk Treasury] Server running on http://localhost:${PORT}`),
-);
 
 module.exports = app;
 
