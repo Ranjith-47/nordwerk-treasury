@@ -1,0 +1,7 @@
+{
+  "name": "nordwerk-treasury-platform",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build"
+  }
+}
