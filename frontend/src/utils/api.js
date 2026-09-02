@@ -1,5 +1,10 @@
 // ── API Client ────────────────────────────────────────────────────────────────
-const API_BASE = 'http://localhost:4004/api';
+// Use the local Express server while developing, and Netlify's function
+// rewrite (`/api/*`) after deployment.  VITE_API_BASE remains available for
+// a separately hosted API without requiring a UI change.
+const API_BASE = import.meta.env.VITE_API_BASE || (
+  import.meta.env.DEV ? 'http://localhost:4004/api' : '/api'
+);
 
 export const api = {
   async get(path) {

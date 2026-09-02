@@ -2,6 +2,9 @@
   "name": "nordwerk-treasury-platform",
   "private": true,
   "scripts": {
-    "build": "cd frontend && npm install && npm run build"
+    "build": "npm --prefix backend ci && npm --prefix frontend ci && npm --prefix frontend run build"
+  },
+  "dependencies": {
+    "serverless-http": "^4.0.0"
   }
 }
