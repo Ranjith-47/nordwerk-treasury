@@ -942,6 +942,7 @@ async function getTransporter() {
     _mailerTransport = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT) || 587,
+      secure: parseInt(process.env.SMTP_PORT) === 465,
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
     });
   } else {
@@ -994,7 +995,7 @@ app.post("/api/treasury/mail", async (req, res) => {
 
     const transporter = await getTransporter();
     const info = await transporter.sendMail({
-      from: '"Nordwerk Treasury" <treasury@nordwerk.com>',
+      from: process.env.MAIL_FROM || '"Nordwerk Treasury" <treasury@nordwerk.com>',
       to,
       subject: subject || "[Nordwerk Treasury] Exception Report",
       html: `<div style="font-family:Arial,sans-serif">

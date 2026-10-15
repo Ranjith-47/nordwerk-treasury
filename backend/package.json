@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node srv/server.js",
-    "dev": "node --watch srv/server.js",
+    "start": "node --env-file-if-exists=.env srv/server.js",
+    "dev": "node --env-file-if-exists=.env --watch srv/server.js",
     "test": "node srv/tests/run-tests.js"
   },
   "keywords": [],
