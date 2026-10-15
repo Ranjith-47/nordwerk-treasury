@@ -62,7 +62,7 @@ function drawLineChart(svgEl, points, color = '#0070F2') {
 export function renderAnalytics() {
   const container = document.createElement('div');
   container.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+    <div class="page-toolbar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
       <h2 class="page-title" style="margin:0;">Financial Analytics</h2>
       <button class="fiori-btn fiori-btn-transparent" id="analytics-refresh-btn">↺ Refresh</button>
     </div>
@@ -90,7 +90,7 @@ export function renderAnalytics() {
       <!-- Risk Donut -->
       <div class="fiori-card">
         <div class="card-header"><h3 class="card-title">Risk Level Distribution</h3><p class="card-subtitle">Open exceptions</p></div>
-        <div class="card-content" style="display:flex;align-items:center;justify-content:center;gap:2rem;padding-top:1rem;">
+        <div class="card-content analytics-donut-content" style="display:flex;align-items:center;justify-content:center;gap:2rem;padding-top:1rem;">
           <svg id="risk-donut" viewBox="0 0 100 100" style="width:150px;height:150px;"></svg>
           <div id="risk-legend" style="font-size:0.8rem;display:flex;flex-direction:column;gap:0.5rem;"></div>
         </div>

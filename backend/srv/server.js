@@ -1111,7 +1111,11 @@ app.get("/api/health", (_req, res) => {
 // ─── ERROR HANDLER ────────────────────────────────────────────────────────────
 
 app.use(errorHandler);
-
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Backend listening at http://localhost:${PORT}`);
+  });
+}
 module.exports = app;
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────

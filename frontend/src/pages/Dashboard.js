@@ -60,7 +60,7 @@ function riskBar(label, count, color, total) {
 export function renderDashboard() {
   const container = document.createElement('div');
   container.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+    <div class="page-toolbar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
       <h2 class="page-title" style="margin:0;">Executive Overview</h2>
       <div style="display:flex;align-items:center;gap:0.5rem;">
         <span class="backend-badge" id="backend-status">
@@ -88,7 +88,7 @@ export function renderDashboard() {
         <div class="card-content" id="risk-dist-content"><div class="loading-inline">Loading...</div></div>
       </div>
       <div class="fiori-card" style="grid-column: 1/-1;">
-        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="card-header card-header-actions" style="display:flex;justify-content:space-between;align-items:center;">
           <div><h3 class="card-title">Recent High-Priority Exceptions</h3><p class="card-subtitle">Top items requiring action</p></div>
           <button class="fiori-btn fiori-btn-transparent" id="view-all-btn">View All →</button>
         </div>
@@ -167,7 +167,7 @@ async function loadDashboardData(container) {
     const items = (exceptions.value || []).slice(0, 5);
     recentContent.innerHTML = items.length === 0
       ? '<p style="padding:1.25rem;color:#5C6A75;">No exceptions found.</p>'
-      : `<table class="fiori-table">
+      : `<div class="table-scroll"><table class="fiori-table">
           <thead><tr>
             <th>Document ID</th><th>Type</th><th>Category</th>
             <th>Amount</th><th>Risk</th><th>Status</th>
@@ -183,7 +183,7 @@ async function loadDashboardData(container) {
                 <td>${e.status || '—'}</td>
               </tr>`).join('')}
           </tbody>
-        </table>`;
+        </table></div>`;
 
   } catch (err) {
     console.error('Dashboard load error:', err);

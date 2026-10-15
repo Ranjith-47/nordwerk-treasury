@@ -724,3 +724,78 @@ body {
 .spark-bar-bg { width:100%; height:6px; background:var(--sapBaseColor); border-radius:3px; margin-top:0.5rem; overflow:hidden; }
 .spark-bar-fill { height:100%; border-radius:3px; transition:width 0.6s ease; }
 
+/* --- Responsive layout safeguards --- */
+.main-content { min-width: 0; }
+.page-view { min-width: 0; }
+.table-scroll { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-scroll .fiori-table { min-width: 760px; }
+.fiori-table-wrapper.table-scroll { overflow-x: auto; overflow-y: hidden; }
+.fiori-table-wrapper.table-scroll .fiori-table { min-width: 1050px; }
+
+@media (max-width: 1024px) {
+  .main-content { padding: 1.5rem; }
+  .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .dashboard-grid-large { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .dashboard-grid-large > .fiori-card[style*="grid-column"] { grid-column: 1 / -1 !important; }
+}
+
+@media (max-width: 640px) {
+  :root { --sapNavWidth: 3.5rem; }
+
+  .fiori-shell-bar { padding: 0 0.25rem; gap: 0.25rem; }
+  .shell-left, .shell-right { gap: 0.25rem; flex-shrink: 0; }
+  .shell-logo { width: 1.5rem; margin: 0 0.25rem; }
+  .shell-title { max-width: 9.5rem; overflow: hidden; text-overflow: ellipsis; }
+  .shell-center { min-width: 0; }
+  .shell-search { max-width: none; }
+  .shell-search input { min-width: 0; }
+  .shell-right .user-avatar { display: none; }
+  .shell-icon-btn { width: 2.5rem; height: 2.5rem; }
+
+  .app-container { width: 100%; }
+  .side-nav { flex: 0 0 var(--sapNavWidth); }
+  .side-nav.expanded { position: absolute; top: var(--sapShellHeight); bottom: 0; width: var(--sapNavWidthExpanded); }
+  .nav-item { height: 3rem; padding: 0 1.125rem; }
+  .nav-item svg { margin-right: 0.75rem; }
+
+  .main-content { padding: 1rem; }
+  .page-toolbar { align-items: stretch !important; flex-direction: column; gap: 0.75rem !important; }
+  .page-toolbar > * { min-width: 0; }
+  .page-actions { width: 100%; }
+  .page-actions .fiori-btn { flex: 1 1 9rem; }
+  .dashboard-grid, .dashboard-grid-large { grid-template-columns: minmax(0, 1fr); gap: 1rem; margin-bottom: 1rem; }
+  .dashboard-grid-large > .fiori-card[style*="grid-column"] { grid-column: auto !important; }
+  .card-header, .card-content { padding-left: 1rem; padding-right: 1rem; }
+  .card-header-actions { align-items: flex-start !important; flex-direction: column; gap: 0.5rem; }
+  .card-header-actions .fiori-btn { align-self: flex-end; }
+  .kpi-value { font-size: 1.75rem; overflow-wrap: anywhere; }
+
+  .filter-toolbar { align-items: stretch !important; gap: 0.75rem !important; }
+  .filter-toolbar > div { flex: 1 1 100% !important; min-width: 0 !important; }
+  .filter-toolbar > .fiori-btn { width: 100%; }
+  .fiori-btn, .fiori-select, .fiori-input { min-height: 2.75rem; }
+  .fiori-textarea { min-height: 5.5rem; }
+  .fiori-table th, .fiori-table td { padding: 0.75rem; white-space: nowrap; }
+  .table-pagination { align-items: flex-start !important; flex-direction: column; gap: 0.75rem; }
+  .table-pagination > div { width: 100%; justify-content: space-between; align-items: center; }
+
+  .analytics-donut-content { align-items: center !important; flex-direction: column; gap: 1rem !important; }
+  .aging-row { grid-template-columns: 86px minmax(0, 1fr) 30px; }
+  .risk-score-header { align-items: flex-start; flex-direction: column; gap: 1rem; }
+  .risk-rule-info { align-items: flex-start; flex-wrap: wrap; }
+  .modal-email-section > div { flex-direction: column; }
+  .modal-email-section .fiori-btn { width: 100%; }
+  .fiori-modal-overlay { padding: 0.5rem; }
+  .fiori-modal { max-height: calc(100vh - 1rem); }
+  .fiori-modal-header, .fiori-modal-body, .fiori-modal-footer { padding-left: 1rem; padding-right: 1rem; }
+  .fiori-modal-footer { flex-wrap: wrap; }
+  .fiori-modal-footer .fiori-btn { flex: 1 1 8rem; }
+  .fiori-toast { right: 1rem; bottom: 1rem; left: 1rem; max-width: none; }
+}
+
+@media (max-width: 420px) {
+  .shell-search { display: none; }
+  .shell-center { display: none; }
+  .shell-title { max-width: calc(100vw - 12rem); }
+  .page-actions .fiori-btn { flex-basis: 100%; }
+}

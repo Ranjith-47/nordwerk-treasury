@@ -201,9 +201,9 @@ export function renderExceptionQueue() {
   const container = document.createElement('div');
 
   container.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.5rem;">
+    <div class="page-toolbar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.5rem;">
       <h2 class="page-title" style="margin:0;">Exception Queue</h2>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <div class="page-actions" style="display:flex;gap:0.5rem;flex-wrap:wrap;">
         <button class="fiori-btn fiori-btn-primary" id="resolve-selected-btn" disabled>✓ Resolve Selected</button>
         <a class="fiori-btn fiori-btn-transparent" id="export-pdf-btn" href="${api.exportPdfUrl()}" target="_blank">⬇ Export PDF</a>
         <button class="fiori-btn fiori-btn-transparent" id="email-report-btn">✉ Email Report</button>
@@ -213,7 +213,7 @@ export function renderExceptionQueue() {
 
     <!-- Filters -->
     <div class="fiori-card" style="margin-bottom:1.5rem;">
-      <div style="padding:1rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;">
+      <div class="filter-toolbar" style="padding:1rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;">
         <div style="flex:1;min-width:180px;">
           <label class="fiori-field-label">Status</label>
           <select class="fiori-select" id="filter-status">
@@ -249,7 +249,7 @@ export function renderExceptionQueue() {
     <div id="eq-summary" style="margin-bottom:0.75rem;font-size:0.875rem;color:#5C6A75;"></div>
 
     <!-- Table wrapper -->
-    <div class="fiori-table-wrapper" id="eq-table-wrapper">
+    <div class="fiori-table-wrapper table-scroll" id="eq-table-wrapper">
       <table class="fiori-table">
         <thead>
           <tr>
@@ -262,7 +262,7 @@ export function renderExceptionQueue() {
           <tr><td colspan="11" style="text-align:center;padding:2rem;color:#5C6A75;">Loading exceptions...</td></tr>
         </tbody>
       </table>
-      <div id="eq-pagination" style="padding:0.75rem 1rem;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--sapBorderColor);font-size:0.875rem;color:#5C6A75;"></div>
+      <div id="eq-pagination" class="table-pagination" style="padding:0.75rem 1rem;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--sapBorderColor);font-size:0.875rem;color:#5C6A75;"></div>
     </div>
   `;
 
